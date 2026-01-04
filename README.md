@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,25 @@
     <title>O.C app</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.12/build/css/intlTelInput.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <style>        
+    <style>
+        
+           
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         /* Toast container */
 .toast {
     position: fixed;
@@ -55,8 +73,18 @@
         left: 10px;
         max-width: unset;
     }
-}        
-                                     /* Product Kebab Menu Styles */
+}
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+                     /* Product Kebab Menu Styles */
 .product-menu {
     position: absolute;
     top: 10px;
@@ -180,7 +208,7 @@ body.dark-mode .product-menu-option:hover {
 
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 100%;
             background-color: white;
             min-height: 100vh;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -894,7 +922,7 @@ body.dark-mode .product-menu-option:hover {
             position: fixed;
             bottom: 0;
             width: 100%;
-            max-width: 600px;
+            max-width: 100%;
             display: flex;
             justify-content: space-around;
             background-color: white;
