@@ -208,7 +208,7 @@ body.dark-mode .product-menu-option:hover {
 
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 100%;
             background-color: white;
             min-height: 100vh;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -922,7 +922,7 @@ body.dark-mode .product-menu-option:hover {
             position: fixed;
             bottom: 0;
             width: 100%;
-            max-width: 600px;
+            max-width: 100%;
             display: flex;
             justify-content: space-around;
             background-color: white;
@@ -991,7 +991,121 @@ body.dark-mode .product-menu-option:hover {
             gap: 5px;
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         /* Product Form Styles */
+        
+        
+        
+        
+        
+       
+.product-form-section {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.close-form-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.close-form-btn:hover {
+    background-color: #c0392b;
+}
+
+.sell-btn {
+    background-color: #42B983;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.3s;
+}
+
+.sell-btn:hover {
+    background-color: #379c6f;
+}
+
+.sell-btn.active {
+    background-color: #e74c3c;
+}
+
+.sell-btn.active i {
+    transform: rotate(45deg);
+    transition: transform 0.3s;
+}
+
+/* Animation for form appearance */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.product-form-section {
+    animation: slideDown 0.3s ease-out;
+}
+
+/* Dark mode support */
+body.dark-mode .product-form-section {
+    background-color: #2d3748;
+}
+
+body.dark-mode .close-form-btn {
+    background-color: #c53030;
+}
+
+body.dark-mode .close-form-btn:hover {
+    background-color: #9b2c2c;
+}
+        
+        
+        
+        
+        
+        
+        
+        
         .product-form-container {
             display: none;
             padding: 15px;
@@ -4909,9 +5023,16 @@ body.dark-mode .book-menu-option:hover {
                 
                 
             </div>
-            <div class="products-grid" id="productsContainer">
-                <!-- Products will be dynamically added here -->
-            </div>
+            
+            
+         
+            
+            
+            
+            
+            
+            
+            
         </div>
 
         <!-- Earnings Section -->
@@ -5236,6 +5357,15 @@ body.dark-mode .book-menu-option:hover {
             </div>
 
             <!-- Product Form -->
+            
+            
+            
+            
+            
+            
+            
+            
+            
             <div class="product-form-container" id="productFormContainer">
                 <h2 class="form-title">KEEP YOUR BUSINESS ON MARKET</h2>
                 <form id="productForm">
@@ -5278,6 +5408,17 @@ body.dark-mode .book-menu-option:hover {
                     <div class="success" id="successMessage"></div>
                     <div class="error" id="errorMessage"></div>
                 </form>
+                
+                
+                
+                <!-- Add a close button -->
+        <button class="close-form-btn" onclick="hideProductForm()">
+            <i class="fas fa-times"></i> Close
+        </button>
+                
+                
+                
+                
             </div>
 
             <!-- Products will be displayed here -->
@@ -6384,6 +6525,17 @@ body.dark-mode .book-menu-option:hover {
     
 
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.12/build/js/intlTelInput.min.js"></script>
+    <script>
+        
+            
+            
+            
+            
+            script src="https://cdn.jsdelivr.net/npm/intl-tel-input@17.0.12/build/js/intlTelInput.min.js"></script>
+    
+    
+<script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD"></script>
+    
     <script>
         
             
@@ -8132,35 +8284,381 @@ function goBackToShop() {
     showProducts();
 }
 
-// Product action functions with API integration
+
+
+
+
+
+
+
+
+
 async function buyProduct() {
     if (currentProductDetails) {
-        alert(`You are about to purchase: ${currentProductDetails.name}\nPrice: $${currentProductDetails.price.toFixed(2)}\n\nProceeding to checkout...`);
+        // Create payment modal
+        showPaymentOptionsModal(currentProductDetails);
+    }
+}
+
+// Show payment options modal
+function showPaymentOptionsModal(product) {
+    // Create payment modal HTML
+    const modalContent = `
+        <div class="modal" id="paymentOptionsModal">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3>Complete Purchase</h3>
+                    <span onclick="closePaymentOptionsModal()" style="cursor: pointer;">×</span>
+                </div>
+                <div class="modal-body">
+                    <div class="product-summary" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <h4>${product.name}</h4>
+                        <p style="color: #65676B; margin: 5px 0;">Price: $${product.price.toFixed(2)}</p>
+                        <p style="color: #65676B; margin: 5px 0;">Seller: ${product.companyName}</p>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px;">Select Payment Method</h4>
+                    
+                    <div class="payment-methods" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                        <div class="payment-option" onclick="selectPaymentMethod('paypal')" style="padding: 15px; border: 2px solid #eee; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                            <i class="fab fa-paypal" style="font-size: 24px; color: #003087;"></i>
+                            <div>
+                                <div style="font-weight: bold;">PayPal</div>
+                                <div style="font-size: 12px; color: #65676B;">Pay with PayPal account or card</div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-option" onclick="selectPaymentMethod('bitcoin')" style="padding: 15px; border: 2px solid #eee; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                            <i class="fab fa-bitcoin" style="font-size: 24px; color: #F7931A;"></i>
+                            <div>
+                                <div style="font-weight: bold;">Bitcoin</div>
+                                <div style="font-size: 12px; color: #65676B;">Pay with cryptocurrency</div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-option" onclick="selectPaymentMethod('mobile')" style="padding: 15px; border: 2px solid #eee; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-mobile-alt" style="font-size: 24px; color: #4267B2;"></i>
+                            <div>
+                                <div style="font-weight: bold;">Mobile Money</div>
+                                <div style="font-size: 12px; color: #65676B;">M-Pesa, Tigo Pesa, Airtel Money</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- PayPal Button Container (hidden by default) -->
+                    <div id="paypal-button-container" style="display: none; margin-bottom: 15px;"></div>
+                    
+                    <!-- Bitcoin Payment Section (hidden by default) -->
+                    <div id="bitcoin-payment-section" style="display: none;">
+                        <div style="background: #f0f7ff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <h5 style="margin-top: 0;">Bitcoin Payment Instructions</h5>
+                            <ol style="margin: 10px 0; padding-left: 20px;">
+                                <li>Click the "Pay with Bitcoin" button</li>
+                                <li>You'll be redirected to a secure payment page</li>
+                                <li>Send the exact amount to the provided address</li>
+                                <li>Wait for confirmation (usually takes 10-30 minutes)</li>
+                            </ol>
+                        </div>
+                        <button class="btn btn-primary" onclick="payWithBitcoin()" style="width: 100%;">
+                            <i class="fab fa-bitcoin"></i> Pay with Bitcoin
+                        </button>
+                    </div>
+                    
+                    <!-- Mobile Money Payment Section (hidden by default) -->
+                    <div id="mobile-payment-section" style="display: none;">
+                        <div class="payment-instructions" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <h5 style="margin-top: 0;">Mobile Money Payment Instructions:</h5>
+                            <ol>
+                                <li>Go to your mobile money app (M-Pesa, Tigo Pesa, Airtel Money)</li>
+                                <li>Send $${product.price.toFixed(2)} to:</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="payment-account" style="background: #e8f4fd; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px;">
+                            <div>Mobile Money Account:</div>
+                            <div style="font-size: 18px; font-weight: bold; color: #4267B2; margin: 10px 0;">+255776290901</div>
+                            <div style="font-size: 14px; color: #65676B;">Reference: PRODUCT-${product.id}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closePaymentOptionsModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add modal to page
+    const modalDiv = document.createElement('div');
+    modalDiv.innerHTML = modalContent;
+    document.body.appendChild(modalDiv.firstElementChild);
+    
+    // Show modal
+    const modal = document.getElementById('paymentOptionsModal');
+    if (modal) {
+        modal.style.display = 'flex';
         
-        // Record purchase via API
-        await callAPI('recordPurchase', {
-            productId: currentProductDetails.id,
-            buyerId: currentUser.id,
-            sellerId: currentProductDetails.userId,
-            amount: currentProductDetails.price,
-            productName: currentProductDetails.name
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closePaymentOptionsModal();
+            }
         });
     }
 }
 
-async function contactSeller() {
-    if (currentProductDetails) {
-        alert(`Contacting seller for: ${currentProductDetails.name}\n\nSeller: ${currentProductDetails.companyName}\n\nThis would open a chat interface in a real app.`);
+// Close payment options modal
+function closePaymentOptionsModal() {
+    const modal = document.getElementById('paymentOptionsModal');
+    if (modal) {
+        modal.style.display = 'none';
+        setTimeout(() => {
+            if (modal.parentNode) {
+                modal.remove();
+            }
+        }, 300);
+    }
+}
+
+// Select payment method
+function selectPaymentMethod(method) {
+    // Remove active class from all options
+    document.querySelectorAll('.payment-option').forEach(option => {
+        option.style.borderColor = '#eee';
+    });
+    
+    // Add active class to selected option
+    event.currentTarget.style.borderColor = '#4267B2';
+    
+    // Hide all payment sections
+    document.getElementById('paypal-button-container').style.display = 'none';
+    document.getElementById('bitcoin-payment-section').style.display = 'none';
+    document.getElementById('mobile-payment-section').style.display = 'none';
+    
+    // Show selected payment section
+    if (method === 'paypal') {
+        document.getElementById('paypal-button-container').style.display = 'block';
+        initializePayPalButton();
+    } else if (method === 'bitcoin') {
+        document.getElementById('bitcoin-payment-section').style.display = 'block';
+    } else if (method === 'mobile') {
+        document.getElementById('mobile-payment-section').style.display = 'block';
+    }
+}
+
+// Initialize PayPal button
+function initializePayPalButton() {
+    const product = currentProductDetails;
+    
+    paypal.Buttons({
+        style: {
+            layout: 'vertical',
+            color: 'blue',
+            shape: 'rect',
+            label: 'paypal'
+        },
+        createOrder: async function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    description: product.name,
+                    amount: {
+                        value: product.price.toFixed(2),
+                        currency_code: "USD"
+                    }
+                }]
+            });
+        },
+        onApprove: async function(data, actions) {
+            return actions.order.capture().then(async function(details) {
+                // Payment successful
+                alert(`Payment completed successfully!\n\nTransaction ID: ${details.id}\n\nThank you for your purchase!`);
+                
+                // Record purchase via API
+                await callAPI('recordPurchase', {
+                    productId: product.id,
+                    buyerId: currentUser.id,
+                    sellerId: product.userId,
+                    amount: product.price,
+                    productName: product.name,
+                    paymentMethod: 'paypal',
+                    transactionId: details.id,
+                    status: 'completed'
+                });
+                
+                // Close modal
+                closePaymentOptionsModal();
+                
+                // Show success message
+                showToast(`Successfully purchased ${product.name}!`);
+            });
+        },
+        onError: function(err) {
+            console.error('PayPal error:', err);
+            alert('An error occurred with PayPal payment. Please try again or use another payment method.');
+        },
+        onCancel: function(data) {
+            console.log('PayPal payment cancelled');
+        }
+    }).render('#paypal-button-container');
+}
+
+// Pay with Bitcoin function
+async function payWithBitcoin() {
+    if (!currentProductDetails) return;
+    
+    const product = currentProductDetails;
+    
+    // Show loading
+    showToast("Processing Bitcoin payment...");
+    
+    try {
+        // In a real app, this would call your backend API
+        // For demo purposes, we'll simulate the process
         
-        // Record contact via API
-        await callAPI('recordContactSeller', {
-            productId: currentProductDetails.id,
-            buyerId: currentUser.id,
-            sellerId: currentProductDetails.userId,
-            productName: currentProductDetails.name
+        // Simulate API call to create Bitcoin payment
+        const paymentResult = await simulateBitcoinPayment(product);
+        
+        if (paymentResult.success) {
+            // Show Bitcoin payment details
+            showBitcoinPaymentDetails(paymentResult);
+        } else {
+            alert("Failed to create Bitcoin payment. Please try again.");
+        }
+    } catch (error) {
+        console.error('Bitcoin payment error:', error);
+        alert("An error occurred with Bitcoin payment. Please try another payment method.");
+    }
+}
+
+// Simulate Bitcoin payment creation
+async function simulateBitcoinPayment(product) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve({
+                success: true,
+                invoice_url: "https://bitpay.com/invoice?id=demo123",
+                bitcoin_address: "1BitcoinAddressForDemoOnly123456",
+                amount: product.price,
+                currency: "USD"
+            });
+        }, 1000);
+    });
+}
+
+// Show Bitcoin payment details
+function showBitcoinPaymentDetails(paymentInfo) {
+    const modalContent = `
+        <div class="modal" id="bitcoinDetailsModal">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3>Bitcoin Payment Details</h3>
+                    <span onclick="closeBitcoinDetailsModal()" style="cursor: pointer;">×</span>
+                </div>
+                <div class="modal-body">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <i class="fab fa-bitcoin" style="font-size: 48px; color: #F7931A;"></i>
+                        <h4>Send Bitcoin Payment</h4>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-size: 12px; color: #65676B; margin-bottom: 5px;">Amount (USD)</div>
+                            <div style="font-size: 24px; font-weight: bold; color: #F7931A;">$${paymentInfo.amount.toFixed(2)}</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-size: 12px; color: #65676B; margin-bottom: 5px;">Bitcoin Address</div>
+                            <div style="background: white; padding: 12px; border-radius: 4px; border: 1px solid #ddd; font-family: monospace; word-break: break-all; font-size: 14px;">
+                                ${paymentInfo.bitcoin_address}
+                            </div>
+                            <button onclick="copyBitcoinAddress()" style="margin-top: 10px; background: #f0f2f5; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                <i class="fas fa-copy"></i> Copy Address
+                            </button>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="font-size: 12px; color: #65676B; margin-bottom: 5px;">QR Code</div>
+                            <div style="background: white; padding: 15px; text-align: center; border-radius: 4px; border: 1px solid #ddd;">
+                                <div style="width: 150px; height: 150px; background: #eee; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-qrcode" style="font-size: 64px; color: #999;"></i>
+                                </div>
+                                <div style="font-size: 11px; color: #65676B; margin-top: 10px;">(QR code would appear here)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #fff0f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #e74c3c;">
+                        <h5 style="margin-top: 0; color: #e74c3c;">Important Instructions</h5>
+                        <ol style="margin: 10px 0; padding-left: 20px; font-size: 13px;">
+                            <li>Send the <strong>exact amount</strong> in Bitcoin</li>
+                            <li>Use the correct Bitcoin address above</li>
+                            <li>Transaction may take 10-30 minutes to confirm</li>
+                            <li>Don't send from an exchange (send from your wallet)</li>
+                            <li>Keep your transaction ID for reference</li>
+                        </ol>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="closeBitcoinDetailsModal()" style="flex: 1;">Close</button>
+                        <a href="${paymentInfo.invoice_url}" target="_blank" class="btn btn-primary" style="flex: 1;">
+                            <i class="fas fa-external-link-alt"></i> Open Payment Page
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('bitcoinDetailsModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to page
+    const modalDiv = document.createElement('div');
+    modalDiv.innerHTML = modalContent;
+    document.body.appendChild(modalDiv.firstElementChild);
+    
+    // Show modal
+    const modal = document.getElementById('bitcoinDetailsModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        
+        // Close payment options modal
+        closePaymentOptionsModal();
+    }
+}
+
+// Copy Bitcoin address to clipboard
+function copyBitcoinAddress() {
+    const bitcoinAddress = document.querySelector('#bitcoinDetailsModal .modal-body div:nth-child(2) div:nth-child(2) div')?.textContent;
+    if (bitcoinAddress) {
+        navigator.clipboard.writeText(bitcoinAddress).then(() => {
+            showToast('Bitcoin address copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy:', err);
         });
     }
 }
+
+// Close Bitcoin details modal
+function closeBitcoinDetailsModal() {
+    const modal = document.getElementById('bitcoinDetailsModal');
+    if (modal) {
+        modal.style.display = 'none';
+        setTimeout(() => {
+            if (modal.parentNode) {
+                modal.remove();
+            }
+        }, 300);
+    }
+}
+
+
+
+
+
 
 // Wishlist functions with API integration
 async function toggleWishlist() {
@@ -11198,7 +11696,7 @@ async function saveEditedAd() {
     
     const editAdsTitle = document.getElementById('editAdsTitle');
     const editAdsDescription = document.getElementById('editAdsDescription');
-    const editAdsTarget = document.getElementById('editAdsTarget');
+    const editAdsTarget = document.getElementById('id="editAdsTarget"');
     const editAdsBudget = document.getElementById('editAdsBudget');
     const editAdsDuration = document.getElementById('editAdsDuration');
     const editAdsStatus = document.getElementById('editAdsStatus');
@@ -13020,10 +13518,20 @@ function logout() {
     }
 }
 
+
 // Initialize the app when the page loads
 window.onload = function() {
     initApp();
 };
-                   
+
+    
+            
+            
+            
+            
+            
+            
+            
+            
     </script>
 </html>
