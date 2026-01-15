@@ -11696,7 +11696,7 @@ async function saveEditedAd() {
     
     const editAdsTitle = document.getElementById('editAdsTitle');
     const editAdsDescription = document.getElementById('editAdsDescription');
-    const editAdsTarget = document.getElementById('id="editAdsTarget"');
+    const editAdsTarget = document.getElementById('editAdsTarget');
     const editAdsBudget = document.getElementById('editAdsBudget');
     const editAdsDuration = document.getElementById('editAdsDuration');
     const editAdsStatus = document.getElementById('editAdsStatus');
@@ -12026,6 +12026,9 @@ function updateShopProfile(companyName, contact) {
 }
 
 // Book Menu Functions
+
+
+// Book Menu Functions - STUDENT ACCOUNT VERSION
 function toggleBookMenu() {
     const dropdown = document.getElementById('bookMenuDropdown');
     if (!dropdown) {
@@ -12035,9 +12038,6 @@ function toggleBookMenu() {
     
     // Toggle current dropdown
     dropdown.classList.toggle('show');
-    
-    // Close other dropdowns
-    closeAllOtherDropdowns(dropdown);
     
     // Store the close handler reference for cleanup
     if (window._currentCloseDropdownHandler) {
@@ -12060,43 +12060,13 @@ function toggleBookMenu() {
 }
 
 function closeAllOtherDropdowns(currentDropdown) {
-    // Close post menu dropdowns
-    document.querySelectorAll('.post-menu-dropdown').forEach(dropdown => {
-        if (dropdown !== currentDropdown) {
-            dropdown.style.display = 'none';
-        }
-    });
-    
-    // Close comment options dropdowns
-    document.querySelectorAll('.comment-options-dropdown').forEach(dropdown => {
-        if (dropdown !== currentDropdown) {
-            dropdown.classList.remove('show');
-        }
-    });
-    
-    // Close product menus
-    document.querySelectorAll('.product-menu-dropdown').forEach(dropdown => {
-        if (dropdown !== currentDropdown) {
-            dropdown.classList.remove('show');
-        }
-    });
-    
-    // Close ads dropdowns
-    document.querySelectorAll('.ads-menu-dropdown').forEach(dropdown => {
-        if (dropdown !== currentDropdown) {
-            dropdown.classList.remove('show');
-        }
-    });
-    
-    // Close notifications panel if open
-    const notificationsPanel = document.getElementById('notificationsPanel');
-    if (notificationsPanel && notificationsPanel.style.display === 'flex') {
-        notificationsPanel.style.display = 'none';
-    }
+    // Close only the current dropdown, no need to close others in student account
 }
 
-// Handle user type selection
+// Handle user type selection - STUDENT SPECIFIC
 function selectUserType(type) {
+    console.log('Student type selected:', type);
+    
     // Close the dropdown
     const dropdown = document.getElementById('bookMenuDropdown');
     if (dropdown) {
@@ -12109,214 +12079,299 @@ function selectUserType(type) {
         delete window._currentCloseDropdownHandler;
     }
     
-    // Handle different user types
+    // Handle different user types - STUDENT VERSION
     if (type === 'new') {
-        // Show welcome message and guide for new users
-        showNewUserWelcome();
+        console.log('Showing student registration');
+        showStudentRegistration();
     } else if (type === 'existing') {
-        // Show login/account recovery for existing users
-        showExistingUserOptions();
+        console.log('Showing student login');
+        showStudentLogin();
     } else {
         console.warn('Unknown user type selected:', type);
     }
 }
 
-// New User Welcome Function
-function showNewUserWelcome() {
+// Utility function to show toast messages
+function showToast(message, type = 'info') {
+    // Remove existing toast if any
+    const existingToast = document.getElementById('studentToast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+    
+    const toast = document.createElement('div');
+    toast.id = 'studentToast';
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'error' ? '#e74c3c' : type === 'success' ? '#2ecc71' : '#3498db'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 4px;
+        z-index: 9999;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideIn 0.3s ease;
+    `;
+    
+    // Add CSS animation
+    if (!document.querySelector('#toast-animation')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animation';
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.style.animation = 'slideIn 0.3s ease reverse';
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, 3000);
+    
+    // Also log to console
+    console.log(`Toast: ${message}`);
+}
+
+// Email validation utility
+function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+
+// Student Registration Function
+function showStudentRegistration() {
+    console.log('Opening student registration modal');
+    
     // Remove existing modal if any
-    const existingModal = document.getElementById('newUserModal');
+    const existingModal = document.getElementById('studentRegistrationModal');
     if (existingModal) {
         existingModal.remove();
     }
     
-    // Remove existing user modal if open
-    const existingUserModal = document.getElementById('existingUserModal');
-    if (existingUserModal) {
-        existingUserModal.remove();
-    }
-    
-    // Create a modal for new users
+    // Create a modal specifically for student registration
     const modalContent = `
-        <div class="modal" id="newUserModal">
+        <div class="modal" id="studentRegistrationModal">
             <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
                 <div class="modal-header">
-                    <h3>Register New Account 📚</h3>
-                    <span class="modal-close" onclick="closeNewUserModal()">×</span>
+                    <h3>Student Account Registration 🎓</h3>
+                    <span class="modal-close" onclick="closeStudentModal()">×</span>
                 </div>
                 <div class="modal-body">
                     <div style="text-align: center; margin-bottom: 20px;">
-                        <i class="fas fa-user-plus" style="font-size: 48px; color: #4267B2; margin-bottom: 15px;"></i>
-                        <h3>Create O.C App Account</h3>
-                        <p style="color: #65676B; font-size: 14px;">Fill in all required details to register</p>
+                        <i class="fas fa-graduation-cap" style="font-size: 48px; color: #4267B2; margin-bottom: 15px;"></i>
+                        <h3>Create Student Account</h3>
+                        <p style="color: #65676B; font-size: 14px;">Register as a student to join your school's study group</p>
                     </div>
                     
-                    <form id="newUserForm">
-                        <!-- Profile Picture Section -->
-                        <div class="form-group" style="text-align: center; margin-bottom: 25px;">
-                            <label style="display: block; margin-bottom: 10px; font-weight: 500;">Profile Picture</label>
-                            <div style="position: relative; display: inline-block;">
-                                <div id="profilePreview" style="width: 120px; height: 120px; border-radius: 50%; background: #f0f2f5; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 3px solid #ddd; cursor: pointer; overflow: hidden;">
-                                    <i class="fas fa-camera" style="font-size: 36px; color: #65676B;"></i>
-                                </div>
-                                <input type="file" id="profilePicture" accept="image/*" style="display: none;">
-                                <button type="button" class="btn btn-secondary" id="uploadPhotoBtn" style="margin-top: 10px; padding: 6px 15px; font-size: 12px;">
-                                    <i class="fas fa-upload"></i> Upload Photo
-                                </button>
+                    <form id="studentRegistrationForm">
+                        <!-- School Information (First for students) -->
+                        <div class="form-group">
+                            <label for="studentSchool">School/College *</label>
+                            <select id="studentSchool" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                                <option value="">Select your institution</option>
+                                <option value="kidoti_secondary">Kidoti Secondary School</option>
+                                <option value="kidoti_high">Kidoti High School</option>
+                                <option value="kidoti_college">Kidoti College</option>
+                                <option value="other">Other Institution</option>
+                            </select>
+                            <input type="text" id="otherInstitution" placeholder="Enter institution name" style="margin-top: 10px; display: none; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;" maxlength="100">
+                        </div>
+                        
+                        <!-- Academic Information -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                            <div class="form-group">
+                                <label for="studentRegNumber">Registration Number *</label>
+                                <input type="text" id="studentRegNumber" placeholder="e.g., S12345/2024" required maxlength="30">
+                                <small style="color: #65676B; font-size: 12px;">Official school registration number</small>
                             </div>
-                            <small style="color: #65676B; font-size: 12px; display: block; margin-top: 5px;">JPG or PNG, max 2MB</small>
+                            
+                            <div class="form-group">
+                                <label for="studentAcademicYear">Academic Year *</label>
+                                <select id="studentAcademicYear" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                                    <option value="">Select year</option>
+                                    <option value="form1">Form 1</option>
+                                    <option value="form2">Form 2</option>
+                                    <option value="form3">Form 3</option>
+                                    <option value="form4">Form 4</option>
+                                    <option value="form5">Form 5</option>
+                                    <option value="form6">Form 6</option>
+                                    <option value="year1">Year 1</option>
+                                    <option value="year2">Year 2</option>
+                                    <option value="year3">Year 3</option>
+                                    <option value="year4">Year 4</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="studentCombination">Combination/Stream *</label>
+                            <select id="studentCombination" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                                <option value="">Select your stream</option>
+                                <option value="pcb">PCB (Physics, Chemistry, Biology)</option>
+                                <option value="pcm">PCM (Physics, Chemistry, Mathematics)</option>
+                                <option value="cbage">CBAGE (Commerce, Bookkeeping, Accounting, Geography, Economics)</option>
+                                <option value="hkl">HKL (History, Kiswahili, Literature)</option>
+                                <option value="hge">HGE (History, Geography, Economics)</option>
+                                <option value="arts">Arts</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <input type="text" id="otherCombination" placeholder="Specify your combination" style="margin-top: 10px; display: none; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;" maxlength="50">
                         </div>
                         
                         <!-- Personal Information -->
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                             <div class="form-group">
-                                <label for="studentName">Full Name *</label>
-                                <input type="text" id="studentName" placeholder="Enter your full name" required maxlength="50">
+                                <label for="studentFullName">Full Name *</label>
+                                <input type="text" id="studentFullName" placeholder="Enter your full name" required maxlength="50">
                             </div>
                             
                             <div class="form-group">
-                                <label for="dateOfBirth">Date of Birth *</label>
-                                <input type="date" id="dateOfBirth" required max="${new Date().toISOString().split('T')[0]}">
-                                <small style="color: #65676B; font-size: 12px;">Must be at least 10 years old</small>
+                                <label for="studentDateOfBirth">Date of Birth *</label>
+                                <input type="date" id="studentDateOfBirth" required max="${new Date().toISOString().split('T')[0]}">
                             </div>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                             <div class="form-group">
-                                <label for="phoneNumber">Phone Number *</label>
-                                <input type="tel" id="phoneNumber" placeholder="07XXXXXXXX or 2557XXXXXXXXX" required maxlength="13" pattern="[0-9\+]{10,13}" title="Enter a valid Tanzanian phone number (07XXXXXXXX or 2557XXXXXXXXX)">
-                                <small style="color: #65676B; font-size: 12px;">Format: 07XXXXXXXX or 2557XXXXXXXXX</small>
+                                <label for="studentPhone">Phone Number *</label>
+                                <input type="tel" id="studentPhone" placeholder="07XXXXXXXX" required maxlength="13" pattern="[0-9\+]{10,13}">
+                                <small style="color: #65676B; font-size: 12px;">Tanzanian number (07XXXXXXXX)</small>
                             </div>
                             
                             <div class="form-group">
-                                <label for="newUserEmail">Email Address *</label>
-                                <input type="email" id="newUserEmail" placeholder="student@example.com" required maxlength="100">
+                                <label for="studentEmail">Email Address</label>
+                                <input type="email" id="studentEmail" placeholder="student@example.com" maxlength="100">
                             </div>
-                        </div>
-                        
-                        <!-- Academic Information -->
-                        <div class="form-group">
-                            <label for="schoolCollege">School/College *</label>
-                            <select id="schoolCollege" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                                <option value="">Select your school/college</option>
-                                <option value="kidoti_secondary">Kidoti Secondary School</option>
-                                <option value="other">Other (Specify below)</option>
-                            </select>
-                            <input type="text" id="otherSchool" placeholder="Enter school/college name" style="margin-top: 10px; display: none; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;" maxlength="100">
-                        </div>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                            <div class="form-group">
-                                <label for="courseName">Combination/Course Name *</label>
-                                <input type="text" id="courseName" placeholder="e.g., PCB, PCM, Business" required maxlength="50">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="registrationNumber">Registration Number *</label>
-                                <input type="text" id="registrationNumber" placeholder="Student registration number" required maxlength="30">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="academicYear">Academic Year *</label>
-                            <select id="academicYear" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                                <option value="">Select academic year</option>
-                                <option value="form1">Form 1</option>
-                                <option value="form2">Form 2</option>
-                                <option value="form3">Form 3</option>
-                                <option value="form4">Form 4</option>
-                                <option value="form5">Form 5</option>
-                                <option value="form6">Form 6</option>
-                                <option value="year1">Year 1</option>
-                                <option value="year2">Year 2</option>
-                                <option value="year3">Year 3</option>
-                                <option value="year4">Year 4</option>
-                            </select>
                         </div>
                         
                         <!-- Password Section -->
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                             <div class="form-group">
-                                <label for="newUserPassword">Create Strong Password *</label>
-                                <input type="password" id="newUserPassword" placeholder="Minimum 8 characters" required maxlength="50">
-                                <div id="passwordStrength" style="height: 5px; margin-top: 5px; background: #eee; border-radius: 2px; overflow: hidden;">
-                                    <div id="passwordStrengthBar" style="height: 100%; width: 0%; background: #e74c3c; transition: width 0.3s;"></div>
+                                <label for="studentPassword">Create Password *</label>
+                                <input type="password" id="studentPassword" placeholder="Minimum 8 characters" required maxlength="50">
+                                <div id="studentPasswordStrength" style="height: 5px; margin-top: 5px; background: #eee; border-radius: 2px; overflow: hidden;">
+                                    <div id="studentPasswordStrengthBar" style="height: 100%; width: 0%; background: #e74c3c; transition: width 0.3s;"></div>
                                 </div>
-                                <small style="color: #65676B; font-size: 12px;">Include uppercase, lowercase, numbers & symbols</small>
                             </div>
                             
                             <div class="form-group">
-                                <label for="newUserConfirmPassword">Confirm Password *</label>
-                                <input type="password" id="newUserConfirmPassword" placeholder="Re-enter password" required maxlength="50">
-                                <div id="passwordMatch" style="margin-top: 5px; font-size: 12px;"></div>
+                                <label for="studentConfirmPassword">Confirm Password *</label>
+                                <input type="password" id="studentConfirmPassword" placeholder="Re-enter password" required maxlength="50">
+                                <div id="studentPasswordMatch" style="margin-top: 5px; font-size: 12px;"></div>
                             </div>
                         </div>
                         
-                        <!-- Terms Agreement -->
+                        <!-- Profile Picture (Optional for students) -->
+                        <div class="form-group" style="text-align: center; margin: 15px 0;">
+                            <label style="display: block; margin-bottom: 10px; font-weight: 500;">Student ID Photo (Optional)</label>
+                            <div style="position: relative; display: inline-block;">
+                                <div id="studentPhotoPreview" style="width: 120px; height: 120px; border-radius: 50%; background: #f0f2f5; display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 2px dashed #ddd; cursor: pointer; overflow: hidden;">
+                                    <i class="fas fa-user-graduate" style="font-size: 36px; color: #65676B;"></i>
+                                </div>
+                                <input type="file" id="studentPhoto" accept="image/*" style="display: none;">
+                                <button type="button" class="btn btn-secondary" id="uploadStudentPhotoBtn" style="margin-top: 10px; padding: 6px 15px; font-size: 12px;">
+                                    <i class="fas fa-camera"></i> Upload Photo
+                                </button>
+                            </div>
+                            <small style="color: #65676B; font-size: 12px; display: block; margin-top: 5px;">Optional: School ID or profile photo</small>
+                        </div>
+                        
+                        <!-- Student Agreement -->
                         <div style="margin: 15px 0;">
                             <label style="display: flex; align-items: flex-start; cursor: pointer;">
-                                <input type="checkbox" id="termsAgreement" style="margin-right: 8px; margin-top: 3px;" required>
+                                <input type="checkbox" id="studentAgreement" style="margin-right: 8px; margin-top: 3px;" required>
                                 <span style="font-size: 13px; color: #65676B;">
-                                    I agree to the <a href="#" onclick="showTerms(); return false;" style="color: #4267B2;">Terms of Service</a> and <a href="#" onclick="showPrivacyPolicy(); return false;" style="color: #4267B2;">Privacy Policy</a>
+                                    I agree to follow school rules and maintain respectful behavior in the study group. 
+                                    I understand this platform is for educational purposes only.
                                 </span>
                             </label>
                         </div>
                         
                         <!-- Submit Button -->
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            <i class="fas fa-user-plus"></i> Create Account
+                        <button type="submit" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-user-graduate"></i> Register as Student
                         </button>
                     </form>
                     
                     <div style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 20px;">
-                        <p style="text-align: center; color: #65676B; margin-bottom: 10px;">Already have an account?</p>
-                        <button type="button" class="btn btn-secondary" onclick="switchToExistingUser()" style="width: 100%;">
-                            <i class="fas fa-sign-in-alt"></i> Sign In Instead
+                        <p style="text-align: center; color: #65676B; margin-bottom: 10px;">Already have a student account?</p>
+                        <button type="button" class="btn btn-secondary" onclick="showStudentLogin()" style="width: 100%;">
+                            <i class="fas fa-sign-in-alt"></i> Student Login
+                        </button>
+                    </div>
+                    
+                    <!-- Switch to regular account -->
+                    <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                        <p style="color: #65676B; font-size: 13px; margin-bottom: 10px;">Looking for regular account?</p>
+                        <button type="button" class="btn btn-outline" onclick="switchToRegularAccount()" style="width: 100%; padding: 8px; font-size: 13px; border: 1px solid #ddd; background: transparent;">
+                            <i class="fas fa-exchange-alt"></i> Switch to Regular Account
                         </button>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeNewUserModal()">Cancel</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeStudentModal()">Cancel</button>
                 </div>
             </div>
         </div>
     `;
     
-    // Create and show new modal
+    // Create and show modal
     const modalDiv = document.createElement('div');
     modalDiv.innerHTML = modalContent;
     document.body.appendChild(modalDiv.firstElementChild);
     
     // Show modal
-    const modal = document.getElementById('newUserModal');
+    const modal = document.getElementById('studentRegistrationModal');
     if (modal) {
         modal.style.display = 'flex';
         
         // Close modal when clicking outside
         modal.addEventListener('click', function(e) {
             if (e.target === modal) {
-                closeNewUserModal();
+                closeStudentModal();
             }
         });
         
         // Add form submit handler
-        const form = document.getElementById('newUserForm');
+        const form = document.getElementById('studentRegistrationForm');
         if (form) {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                registerNewUser();
+                console.log('Student registration form submitted');
+                registerStudent();
             });
         }
         
         // Add event listeners for dynamic fields
-        const schoolSelect = document.getElementById('schoolCollege');
-        const otherSchoolInput = document.getElementById('otherSchool');
-        const passwordInput = document.getElementById('newUserPassword');
-        const confirmPasswordInput = document.getElementById('newUserConfirmPassword');
-        const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
-        const profilePictureInput = document.getElementById('profilePicture');
+        const schoolSelect = document.getElementById('studentSchool');
+        const otherSchoolInput = document.getElementById('otherInstitution');
+        const combinationSelect = document.getElementById('studentCombination');
+        const otherCombinationInput = document.getElementById('otherCombination');
+        const passwordInput = document.getElementById('studentPassword');
+        const confirmPasswordInput = document.getElementById('studentConfirmPassword');
+        const uploadPhotoBtn = document.getElementById('uploadStudentPhotoBtn');
+        const studentPhotoInput = document.getElementById('studentPhoto');
         
         if (schoolSelect && otherSchoolInput) {
             schoolSelect.addEventListener('change', function() {
+                console.log('School selected:', this.value);
                 if (this.value === 'other') {
                     otherSchoolInput.style.display = 'block';
                     otherSchoolInput.required = true;
@@ -12327,82 +12382,226 @@ function showNewUserWelcome() {
             });
         }
         
+        if (combinationSelect && otherCombinationInput) {
+            combinationSelect.addEventListener('change', function() {
+                console.log('Combination selected:', this.value);
+                if (this.value === 'other') {
+                    otherCombinationInput.style.display = 'block';
+                    otherCombinationInput.required = true;
+                } else {
+                    otherCombinationInput.style.display = 'none';
+                    otherCombinationInput.required = false;
+                }
+            });
+        }
+        
         if (passwordInput) {
-            passwordInput.addEventListener('input', checkPasswordStrength);
+            passwordInput.addEventListener('input', checkStudentPasswordStrength);
         }
         
         if (confirmPasswordInput) {
-            confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+            confirmPasswordInput.addEventListener('input', checkStudentPasswordMatch);
         }
         
-        if (uploadPhotoBtn && profilePictureInput) {
-            uploadPhotoBtn.addEventListener('click', () => profilePictureInput.click());
+        if (uploadPhotoBtn && studentPhotoInput) {
+            uploadPhotoBtn.addEventListener('click', () => {
+                console.log('Upload photo button clicked');
+                studentPhotoInput.click();
+            });
         }
         
-        if (profilePictureInput) {
-            profilePictureInput.addEventListener('change', previewProfilePicture);
+        if (studentPhotoInput) {
+            studentPhotoInput.addEventListener('change', previewStudentPhoto);
         }
         
-        // Auto-focus on name input
+        // Auto-focus on school select
         setTimeout(() => {
-            const nameInput = document.getElementById('studentName');
-            if (nameInput) nameInput.focus();
+            const schoolInput = document.getElementById('studentSchool');
+            if (schoolInput) {
+                schoolInput.focus();
+                console.log('School input focused');
+            }
         }, 100);
     }
 }
 
-// Preview profile picture
-function previewProfilePicture(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+// Student Login Function
+function showStudentLogin() {
+    console.log('Opening student login modal');
     
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const maxSize = 2 * 1024 * 1024; // 2MB
-    
-    if (!validTypes.includes(file.type)) {
-        showToast("Please upload a JPEG or PNG image");
-        return;
+    // Close registration modal if open
+    const regModal = document.getElementById('studentRegistrationModal');
+    if (regModal) {
+        regModal.remove();
     }
     
-    if (file.size > maxSize) {
-        showToast("Image must be less than 2MB");
-        return;
-    }
+    // Create student login modal
+    const modalContent = `
+        <div class="modal" id="studentLoginModal">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3>Student Login 🎓</h3>
+                    <span class="modal-close" onclick="closeStudentModal()">×</span>
+                </div>
+                <div class="modal-body">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <i class="fas fa-graduation-cap" style="font-size: 48px; color: #42B983; margin-bottom: 15px;"></i>
+                        <h3>Welcome Back, Student!</h3>
+                        <p style="color: #65676B;">Login to access your study group</p>
+                    </div>
+                    
+                    <form id="studentLoginForm">
+                        <!-- Student-specific login options -->
+                        <div class="form-group">
+                            <label for="studentLoginType">Login Using:</label>
+                            <select id="studentLoginType" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;" onchange="toggleStudentLoginFields()">
+                                <option value="regNumber">Registration Number</option>
+                                <option value="phone">Phone Number</option>
+                                <option value="email">Email Address</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div id="studentLoginFieldContainer">
+                                <input type="text" id="studentLoginRegNumber" placeholder="Enter registration number" required class="student-login-field" style="display: block;">
+                                <input type="tel" id="studentLoginPhone" placeholder="07XXXXXXXX" class="student-login-field" style="display: none;">
+                                <input type="email" id="studentLoginEmail" placeholder="student@example.com" class="student-login-field" style="display: none;">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="studentLoginPassword">Password</label>
+                            <input type="password" id="studentLoginPassword" placeholder="Enter your password" required>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" id="studentRememberMe" style="margin-right: 8px;">
+                                <span style="font-size: 13px; color: #65676B;">Remember me on this device</span>
+                            </label>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 10px;">
+                            <a href="#" onclick="showStudentPasswordRecovery(); return false;" style="color: #4267B2; text-decoration: none; font-size: 13px;">
+                                <i class="fas fa-key"></i> Forgot Password?
+                            </a>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-sign-in-alt"></i> Student Login
+                        </button>
+                    </form>
+                    
+                    <div style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 20px;">
+                        <p style="text-align: center; color: #65676B; margin-bottom: 10px;">New student?</p>
+                        <button type="button" class="btn btn-secondary" onclick="showStudentRegistration()" style="width: 100%;">
+                            <i class="fas fa-user-plus"></i> Register as Student
+                        </button>
+                    </div>
+                    
+                    <!-- Switch to regular account -->
+                    <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                        <button type="button" class="btn btn-outline" onclick="switchToRegularAccount()" style="width: 100%; padding: 8px; font-size: 13px; border: 1px solid #ddd; background: transparent;">
+                            <i class="fas fa-exchange-alt"></i> Switch to Regular Account
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeStudentModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    `;
     
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const preview = document.getElementById('profilePreview');
-        if (preview) {
-            preview.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+    // Create and show modal
+    const modalDiv = document.createElement('div');
+    modalDiv.innerHTML = modalContent;
+    document.body.appendChild(modalDiv.firstElementChild);
+    
+    // Show modal
+    const modal = document.getElementById('studentLoginModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeStudentModal();
+            }
+        });
+        
+        // Add form submit handler
+        const form = document.getElementById('studentLoginForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Student login form submitted');
+                loginStudent();
+            });
         }
-    };
-    reader.readAsDataURL(file);
+        
+        // Initialize login fields
+        toggleStudentLoginFields();
+        
+        // Auto-focus on first field
+        setTimeout(() => {
+            const field = document.querySelector('.student-login-field[style*="display: block"]');
+            if (field) {
+                field.focus();
+                console.log('Login field focused');
+            }
+        }, 100);
+    }
 }
 
-// Check password strength
-function checkPasswordStrength() {
-    const password = document.getElementById('newUserPassword');
-    const strengthBar = document.getElementById('passwordStrengthBar');
+// Toggle student login fields
+function toggleStudentLoginFields() {
+    const loginType = document.getElementById('studentLoginType');
+    const fields = document.querySelectorAll('.student-login-field');
+    
+    if (!loginType) return;
+    
+    console.log('Toggling login fields to:', loginType.value);
+    
+    fields.forEach(field => {
+        field.style.display = 'none';
+        field.required = false;
+    });
+    
+    switch(loginType.value) {
+        case 'regNumber':
+            document.getElementById('studentLoginRegNumber').style.display = 'block';
+            document.getElementById('studentLoginRegNumber').required = true;
+            break;
+        case 'phone':
+            document.getElementById('studentLoginPhone').style.display = 'block';
+            document.getElementById('studentLoginPhone').required = true;
+            break;
+        case 'email':
+            document.getElementById('studentLoginEmail').style.display = 'block';
+            document.getElementById('studentLoginEmail').required = true;
+            break;
+    }
+}
+
+// Student-specific helper functions
+function checkStudentPasswordStrength() {
+    const password = document.getElementById('studentPassword');
+    const strengthBar = document.getElementById('studentPasswordStrengthBar');
     
     if (!password || !strengthBar) return;
     
     let strength = 0;
-    
-    // Length check
     if (password.value.length >= 8) strength += 25;
     if (password.value.length >= 12) strength += 10;
-    
-    // Complexity checks
     if (/[A-Z]/.test(password.value)) strength += 20;
     if (/[a-z]/.test(password.value)) strength += 20;
     if (/[0-9]/.test(password.value)) strength += 20;
     if (/[^A-Za-z0-9]/.test(password.value)) strength += 15;
     
-    // Update strength bar
     strength = Math.min(strength, 100);
     strengthBar.style.width = strength + '%';
     
-    // Update color
     if (strength < 40) {
         strengthBar.style.backgroundColor = '#e74c3c';
     } else if (strength < 70) {
@@ -12412,11 +12611,10 @@ function checkPasswordStrength() {
     }
 }
 
-// Check password match
-function checkPasswordMatch() {
-    const password = document.getElementById('newUserPassword');
-    const confirmPassword = document.getElementById('newUserConfirmPassword');
-    const matchDiv = document.getElementById('passwordMatch');
+function checkStudentPasswordMatch() {
+    const password = document.getElementById('studentPassword');
+    const confirmPassword = document.getElementById('studentConfirmPassword');
+    const matchDiv = document.getElementById('studentPasswordMatch');
     
     if (!matchDiv || !confirmPassword) {
         if (matchDiv) matchDiv.innerHTML = '';
@@ -12430,540 +12628,584 @@ function checkPasswordMatch() {
     }
 }
 
-// Enhanced email validation
-function validateEmail(email) {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(email);
-}
-
-// Enhanced phone validation helper
-function validatePhoneNumber(phone) {
-    if (!phone) return false;
+function previewStudentPhoto(event) {
+    console.log('Previewing student photo');
+    const file = event.target.files[0];
+    if (!file) return;
     
-    // Remove all non-digit characters and leading +
-    const cleaned = phone.replace(/\D/g, '');
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const maxSize = 2 * 1024 * 1024;
     
-    // Check Tanzanian phone number patterns
-    // 07xxxxxxxx (10 digits)
-    // 2557xxxxxxxx (12 digits starting with 2557)
-    // 7xxxxxxxx (9 digits starting with 7 - for international format)
-    
-    if (cleaned.startsWith('2557') && cleaned.length === 12) {
-        return true;
-    } else if (cleaned.startsWith('07') && cleaned.length === 10) {
-        return true;
-    } else if (cleaned.startsWith('7') && cleaned.length === 9) {
-        return true;
+    if (!validTypes.includes(file.type)) {
+        showToast("Please upload a JPEG or PNG image", "error");
+        return;
     }
     
-    return false;
+    if (file.size > maxSize) {
+        showToast("Image must be less than 2MB", "error");
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById('studentPhotoPreview');
+        if (preview) {
+            preview.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            console.log('Photo preview updated');
+        }
+    };
+    reader.readAsDataURL(file);
 }
 
-// Main Registration Function - FIXED VERSION
-function registerNewUser() {
-    console.log("Register New User function called");
+// Register Student Function
+function registerStudent() {
+    console.log("=== Starting Student Registration ===");
     
     // Get all form values
-    const studentName = document.getElementById('studentName');
-    const dateOfBirth = document.getElementById('dateOfBirth');
-    const phoneNumber = document.getElementById('phoneNumber');
-    const email = document.getElementById('newUserEmail');
-    const schoolCollege = document.getElementById('schoolCollege');
-    const otherSchool = document.getElementById('otherSchool');
-    const courseName = document.getElementById('courseName');
-    const registrationNumber = document.getElementById('registrationNumber');
-    const academicYear = document.getElementById('academicYear');
-    const password = document.getElementById('newUserPassword');
-    const confirmPassword = document.getElementById('newUserConfirmPassword');
-    const termsCheckbox = document.getElementById('termsAgreement');
+    const school = document.getElementById('studentSchool');
+    const otherSchool = document.getElementById('otherInstitution');
+    const regNumber = document.getElementById('studentRegNumber');
+    const academicYear = document.getElementById('studentAcademicYear');
+    const combination = document.getElementById('studentCombination');
+    const otherCombination = document.getElementById('otherCombination');
+    const fullName = document.getElementById('studentFullName');
+    const dateOfBirth = document.getElementById('studentDateOfBirth');
+    const phone = document.getElementById('studentPhone');
+    const email = document.getElementById('studentEmail');
+    const password = document.getElementById('studentPassword');
+    const confirmPassword = document.getElementById('studentConfirmPassword');
+    const agreement = document.getElementById('studentAgreement');
     
-    if (!studentName || !dateOfBirth || !phoneNumber || !email || !schoolCollege || !courseName || 
-        !registrationNumber || !academicYear || !password || !confirmPassword || !termsCheckbox) {
-        showToast("Form elements not found");
-        return;
-    }
+    console.log("Form values collected:", {
+        school: school?.value,
+        regNumber: regNumber?.value,
+        academicYear: academicYear?.value,
+        fullName: fullName?.value,
+        phone: phone?.value
+    });
     
     // Validation
-    if (!studentName.value || studentName.value.length < 2) {
-        showToast("Please enter your full name (minimum 2 characters)");
-        studentName.focus();
+    if (!school?.value) {
+        showToast("Please select your institution", "error");
+        school?.focus();
         return;
     }
     
-    if (!dateOfBirth.value) {
-        showToast("Please select your date of birth");
-        dateOfBirth.focus();
+    let institutionName;
+    if (school.value === 'other') {
+        if (!otherSchool?.value || otherSchool.value.trim().length < 2) {
+            showToast("Please specify your institution name", "error");
+            if (otherSchool) otherSchool.focus();
+            return;
+        }
+        institutionName = otherSchool.value.trim();
+    } else {
+        institutionName = school.options[school.selectedIndex].text;
+    }
+    
+    if (!regNumber?.value || regNumber.value.length < 3) {
+        showToast("Please enter your registration number", "error");
+        regNumber?.focus();
         return;
     }
     
-    // Validate date (must be at least 10 years old)
+    if (!academicYear?.value) {
+        showToast("Please select your academic year", "error");
+        academicYear?.focus();
+        return;
+    }
+    
+    if (!combination?.value) {
+        showToast("Please select your combination/stream", "error");
+        combination?.focus();
+        return;
+    }
+    
+    let combinationName;
+    if (combination.value === 'other') {
+        if (!otherCombination?.value || otherCombination.value.trim().length < 2) {
+            showToast("Please specify your combination", "error");
+            if (otherCombination) otherCombination.focus();
+            return;
+        }
+        combinationName = otherCombination.value.trim();
+    } else {
+        combinationName = combination.options[combination.selectedIndex].text;
+    }
+    
+    if (!fullName?.value || fullName.value.length < 2) {
+        showToast("Please enter your full name", "error");
+        fullName?.focus();
+        return;
+    }
+    
+    if (!dateOfBirth?.value) {
+        showToast("Please select your date of birth", "error");
+        dateOfBirth?.focus();
+        return;
+    }
+    
+    // Validate age (must be at least 10 for student)
     const birthDate = new Date(dateOfBirth.value);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    // Adjust age if birthday hasn't occurred yet this year
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
         age--;
     }
     
     if (age < 10) {
-        showToast("You must be at least 10 years old to register");
-        dateOfBirth.focus();
+        showToast("You must be at least 10 years old to register as a student", "error");
+        dateOfBirth?.focus();
         return;
     }
     
-    if (!phoneNumber.value) {
-        showToast("Please enter your phone number");
-        phoneNumber.focus();
+    if (age > 25) {
+        showToast("Student registration is for ages 10-25 only", "error");
+        dateOfBirth?.focus();
         return;
     }
     
-    // Validate phone number (Tanzania format)
-    const cleanedPhone = phoneNumber.value.replace(/\s/g, '').replace(/^\+/, '');
+    if (!phone?.value) {
+        showToast("Please enter your phone number", "error");
+        phone?.focus();
+        return;
+    }
+    
+    // Validate phone number
+    const cleanedPhone = phone.value.replace(/\s/g, '').replace(/^\+/, '');
     const phoneRegex = /^(07\d{8}|2557\d{8}|0?7\d{8})$/;
-    
     if (!phoneRegex.test(cleanedPhone)) {
-        showToast("Please enter a valid Tanzanian phone number (e.g., 07XXXXXXXX or 2557XXXXXXXXX)");
-        phoneNumber.focus();
+        showToast("Please enter a valid Tanzanian phone number (07XXXXXXXX)", "error");
+        phone?.focus();
         return;
     }
     
-    // Normalize phone number format
     const normalizedPhone = cleanedPhone.startsWith('255') ? cleanedPhone : 
                            cleanedPhone.startsWith('07') ? '255' + cleanedPhone.substring(1) : 
                            cleanedPhone.startsWith('7') ? '255' + cleanedPhone : cleanedPhone;
     
-    if (!email.value) {
-        showToast("Please enter your email address");
-        email.focus();
+    // Email is optional for students
+    let studentEmail = email?.value ? email.value.trim() : '';
+    if (studentEmail && !validateEmail(studentEmail)) {
+        showToast("Please enter a valid email address", "error");
+        email?.focus();
         return;
     }
     
-    if (!validateEmail(email.value)) {
-        showToast("Please enter a valid email address (e.g., name@example.com)");
-        email.focus();
+    if (!password?.value || password.value.length < 8) {
+        showToast("Password must be at least 8 characters", "error");
+        password?.focus();
         return;
     }
     
-    if (!schoolCollege.value) {
-        showToast("Please select your school/college");
-        schoolCollege.focus();
+    if (password.value !== confirmPassword?.value) {
+        showToast("Passwords do not match", "error");
+        confirmPassword?.focus();
         return;
     }
     
-    // Get the actual school name based on selection
-    let schoolName;
-    if (schoolCollege.value === 'other') {
-        schoolName = otherSchool.value;
-        if (!schoolName || schoolName.trim().length < 2) {
-            showToast("Please specify your school/college name");
-            if (otherSchool) otherSchool.focus();
+    if (!agreement?.checked) {
+        showToast("Please agree to the student terms", "error");
+        return;
+    }
+    
+    console.log("All validations passed");
+    
+    // Check if student already exists
+    let students = JSON.parse(localStorage.getItem('oc_students')) || [];
+    console.log("Existing students:", students.length);
+    
+    // Check registration number
+    const existingRegStudent = students.find(s => s.regNumber === regNumber.value);
+    if (existingRegStudent) {
+        showToast("This registration number is already registered", "error");
+        regNumber?.focus();
+        return;
+    }
+    
+    // Check phone number
+    const existingPhoneStudent = students.find(s => s.phone === normalizedPhone);
+    if (existingPhoneStudent) {
+        showToast("This phone number is already registered", "error");
+        phone?.focus();
+        return;
+    }
+    
+    // Check email if provided
+    if (studentEmail) {
+        const existingEmailStudent = students.find(s => s.email === studentEmail);
+        if (existingEmailStudent) {
+            showToast("This email is already registered", "error");
+            email?.focus();
             return;
         }
-    } else {
-        schoolName = "Kidoti Secondary School";
     }
     
-    if (!courseName.value || courseName.value.length < 2) {
-        showToast("Please enter your combination/course name");
-        courseName.focus();
-        return;
-    }
+    // Get profile photo
+    const photoInput = document.getElementById('studentPhoto');
+    let photoData = '';
     
-    if (!registrationNumber.value || registrationNumber.value.length < 3) {
-        showToast("Please enter your registration number");
-        registrationNumber.focus();
-        return;
-    }
+    console.log("Processing registration...");
     
-    if (!academicYear.value) {
-        showToast("Please select your academic year");
-        academicYear.focus();
-        return;
-    }
-    
-    if (!password.value) {
-        showToast("Please create a password");
-        password.focus();
-        return;
-    }
-    
-    if (password.value.length < 8) {
-        showToast("Password must be at least 8 characters long");
-        password.focus();
-        return;
-    }
-    
-    if (password.value !== confirmPassword.value) {
-        showToast("Passwords do not match. Please re-enter them.");
-        confirmPassword.focus();
-        return;
-    }
-    
-    if (!termsCheckbox.checked) {
-        showToast("Please agree to the Terms of Service and Privacy Policy");
-        return;
-    }
-    
-    // Get existing users from localStorage
-    let users = JSON.parse(localStorage.getItem('oc_app_users')) || [];
-    
-    // Check if email already exists
-    const existingEmailUser = users.find(u => u.email === email.value);
-    if (existingEmailUser) {
-        showToast("This email is already registered. Please sign in instead.");
-        switchToExistingUser();
-        return;
-    }
-    
-    // Check if phone number already exists (using normalized phone)
-    const existingPhoneUser = users.find(u => u.phone === normalizedPhone);
-    if (existingPhoneUser) {
-        showToast("This phone number is already registered");
-        phoneNumber.focus();
-        return;
-    }
-    
-    // Check if registration number already exists
-    const existingRegUser = users.find(u => u.registrationNumber === registrationNumber.value);
-    if (existingRegUser) {
-        showToast("This registration number is already registered");
-        registrationNumber.focus();
-        return;
-    }
-    
-    // Get profile picture data
-    const profilePictureInput = document.getElementById('profilePicture');
-    let profilePictureData = '';
-    
-    if (profilePictureInput && profilePictureInput.files && profilePictureInput.files[0]) {
-        const file = profilePictureInput.files[0];
+    if (photoInput && photoInput.files && photoInput.files[0]) {
+        console.log("Photo uploaded, processing...");
+        const file = photoInput.files[0];
         if (file.size > 2 * 1024 * 1024) {
-            showToast("Profile picture must be less than 2MB");
+            showToast("Photo must be less than 2MB", "error");
             return;
         }
         
-        // Convert to base64
         const reader = new FileReader();
         reader.onload = function(e) {
-            profilePictureData = e.target.result;
-            completeRegistration(profilePictureData);
+            photoData = e.target.result;
+            console.log("Photo loaded successfully");
+            completeStudentRegistration(photoData);
         };
         reader.onerror = function() {
-            showToast("Error reading profile picture");
-            completeRegistration('');
+            console.log("Error loading photo, continuing without photo");
+            completeStudentRegistration('');
         };
         reader.readAsDataURL(file);
     } else {
-        completeRegistration('');
+        console.log("No photo uploaded");
+        completeStudentRegistration('');
     }
     
-    function completeRegistration(profilePicture) {
-        console.log("Completing registration with profile picture");
+    function completeStudentRegistration(photo) {
+        console.log("Completing student registration...");
         
-        // Create unique user ID
-        const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        // Create student ID
+        const studentId = 'student_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         
-        // Create user object
-        const userData = {
-            id: userId,
-            name: studentName.value,
-            email: email.value,
-            phone: normalizedPhone,
-            dateOfBirth: dateOfBirth.value,
-            school: schoolName,
-            course: courseName.value,
-            registrationNumber: registrationNumber.value,
+        // Create student object
+        const studentData = {
+            id: studentId,
+            type: 'student',
+            name: fullName.value,
+            regNumber: regNumber.value,
+            institution: institutionName,
             academicYear: academicYear.value,
+            combination: combinationName,
+            dateOfBirth: dateOfBirth.value,
+            phone: normalizedPhone,
+            email: studentEmail,
             password: btoa(password.value),
-            role: 'member',
-            profilePicture: profilePicture,
+            photo: photo,
             createdAt: new Date().toISOString(),
-            lastLogin: new Date().toISOString()
+            lastLogin: new Date().toISOString(),
+            status: 'active'
         };
         
-        console.log("User data created:", {
-            name: userData.name,
-            email: userData.email.substring(0, 3) + '...',
-            phone: userData.phone,
-            school: userData.school
+        console.log("Student data created:", {
+            name: studentData.name,
+            institution: studentData.institution,
+            regNumber: studentData.regNumber,
+            id: studentData.id
         });
         
-        // Add user to users array
-        users.push(userData);
+        // Save student
+        students.push(studentData);
+        localStorage.setItem('oc_students', JSON.stringify(students));
+        console.log("Student saved to localStorage");
         
-        // Save to localStorage
-        try {
-            localStorage.setItem('oc_app_users', JSON.stringify(users));
-            console.log("User saved to localStorage");
-            
-            // Check if group exists for this school
-            let groups = JSON.parse(localStorage.getItem('oc_app_groups')) || [];
-            let userGroup = groups.find(g => g.school === schoolName);
-            
-            if (!userGroup) {
-                // Create new group - first user becomes admin
-                userData.role = 'admin';
-                
-                const groupId = 'group_' + schoolName.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
-                userGroup = {
-                    id: groupId,
-                    name: schoolName + " Study Group",
-                    school: schoolName,
-                    admin: userId,
-                    members: [userId],
-                    createdAt: new Date().toISOString()
-                };
-                groups.push(userGroup);
-                localStorage.setItem('oc_app_groups', JSON.stringify(groups));
-                
-                // Initialize group messages
-                localStorage.setItem(`messages_${groupId}`, JSON.stringify([]));
-            } else {
-                // Add user to existing group
-                if (!userGroup.members.includes(userId)) {
-                    userGroup.members.push(userId);
-                    localStorage.setItem('oc_app_groups', JSON.stringify(groups));
-                }
-            }
-            
-            // Update user with correct role
-            const userIndex = users.findIndex(u => u.id === userId);
-            if (userIndex !== -1) {
-                users[userIndex].role = userData.role;
-                localStorage.setItem('oc_app_users', JSON.stringify(users));
-            }
-            
-            // Set as current user
-            window.currentUser = userData;
-            localStorage.setItem('current_user', JSON.stringify(userData));
-            
-            showToast(`✅ Account created successfully! Welcome ${studentName.value}`);
-            closeNewUserModal();
-            
-            // Auto-login after 1.5 seconds
-            setTimeout(() => {
-                if (userGroup) {
-                    navigateToGroupChat(userData, userGroup);
-                } else {
-                    navigateToHomePage();
-                }
-            }, 1500);
-            
-        } catch (error) {
-            console.error("Error saving user data:", error);
-            showToast("Error saving account. Please try again.");
-        }
-    }
-}
-
-// Existing User Options Function
-function showExistingUserOptions() {
-    // Remove existing modal if any
-    const existingModal = document.getElementById('existingUserModal');
-    if (existingModal) {
-        existingModal.remove();
-    }
-    
-    // Remove new user modal if open
-    const newUserModal = document.getElementById('newUserModal');
-    if (newUserModal) {
-        newUserModal.remove();
-    }
-    
-    // Create a modal for existing users
-    const modalContent = `
-        <div class="modal" id="existingUserModal">
-            <div class="modal-content" style="max-width: 450px;">
-                <div class="modal-header">
-                    <h3>Existing User Login 🔐</h3>
-                    <span class="modal-close" onclick="closeExistingUserModal()">×</span>
-                </div>
-                <div class="modal-body">
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        <i class="fas fa-user-check" style="font-size: 48px; color: #42B983; margin-bottom: 15px;"></i>
-                        <h3>Welcome Back!</h3>
-                        <p style="color: #65676B;">Sign in to access your account</p>
-                    </div>
-                    
-                    <form id="existingUserForm" style="margin-bottom: 20px;">
-                        <div class="form-group">
-                            <label for="loginEmail">Email Address</label>
-                            <input type="email" id="loginEmail" placeholder="Enter your email" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="loginPassword">Password</label>
-                            <input type="password" id="loginPassword" placeholder="Enter your password" required>
-                        </div>
-                        
-                        <div style="margin: 15px 0;">
-                            <label style="display: flex; align-items: center; cursor: pointer;">
-                                <input type="checkbox" id="rememberMe" style="margin-right: 8px;">
-                                <span style="font-size: 13px; color: #65676B;">Remember me</span>
-                            </label>
-                        </div>
-                        
-                        <div style="text-align: center; margin-top: 10px;">
-                            <a href="#" onclick="showPasswordRecovery(); return false;" style="color: #4267B2; text-decoration: none; font-size: 13px;">
-                                <i class="fas fa-key"></i> Forgot Password?
-                            </a>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
-                            <i class="fas fa-sign-in-alt"></i> Sign In
-                        </button>
-                    </form>
-                    
-                    <div style="border-top: 1px solid #eee; padding-top: 15px;">
-                        <p style="text-align: center; color: #65676B; margin-bottom: 10px;">Don't have an account?</p>
-                        <button type="button" class="btn btn-secondary" onclick="switchToNewUser()" style="width: 100%;">
-                            <i class="fas fa-user-plus"></i> Create New Account
-                        </button>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeExistingUserModal()">Cancel</button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Create and show new modal
-    const modalDiv = document.createElement('div');
-    modalDiv.innerHTML = modalContent;
-    document.body.appendChild(modalDiv.firstElementChild);
-    
-    // Show modal
-    const modal = document.getElementById('existingUserModal');
-    if (modal) {
-        modal.style.display = 'flex';
+        // Create or join institution group
+        let groups = JSON.parse(localStorage.getItem('oc_student_groups')) || [];
+        let studentGroup = groups.find(g => g.institution === institutionName);
         
-        // Close modal when clicking outside
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeExistingUserModal();
+        if (!studentGroup) {
+            console.log("Creating new student group for:", institutionName);
+            // First student from this institution becomes group admin
+            const groupId = 'student_group_' + institutionName.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
+            studentGroup = {
+                id: groupId,
+                name: institutionName + " Study Group",
+                institution: institutionName,
+                admin: studentId,
+                members: [studentId],
+                type: 'student',
+                createdAt: new Date().toISOString()
+            };
+            groups.push(studentGroup);
+            localStorage.setItem('oc_student_groups', JSON.stringify(groups));
+            
+            // Initialize group messages
+            localStorage.setItem(`student_messages_${groupId}`, JSON.stringify([]));
+            console.log("New group created:", studentGroup.name);
+        } else {
+            console.log("Joining existing group:", studentGroup.name);
+            // Add student to existing group
+            if (!studentGroup.members.includes(studentId)) {
+                studentGroup.members.push(studentId);
+                localStorage.setItem('oc_student_groups', JSON.stringify(groups));
+                console.log("Student added to existing group");
             }
-        });
-        
-        // Add form submit handler
-        const form = document.getElementById('existingUserForm');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                loginExistingUser();
-            });
         }
         
-        // Auto-focus on email input
+        // Set as current user
+        window.currentStudent = studentData;
+        localStorage.setItem('current_student', JSON.stringify(studentData));
+        console.log("Student logged in as current user");
+        
+        showToast(`✅ Welcome ${fullName.value}! Student account created successfully`, "success");
+        closeStudentModal();
+        
+        // Navigate to student group chat
         setTimeout(() => {
-            const emailInput = document.getElementById('loginEmail');
-            if (emailInput) emailInput.focus();
-        }, 100);
+            console.log("Navigating to student group chat...");
+            navigateToStudentGroup(studentData, studentGroup);
+        }, 1500);
     }
 }
 
-function closeExistingUserModal() {
-    const modal = document.getElementById('existingUserModal');
-    if (modal) {
-        modal.style.display = 'none';
-        setTimeout(() => {
-            if (modal.parentNode) {
-                modal.remove();
-            }
-        }, 300);
-    }
-}
-
-function loginExistingUser() {
-    const emailInput = document.getElementById('loginEmail');
-    const passwordInput = document.getElementById('loginPassword');
+// Login Student Function
+function loginStudent() {
+    console.log("=== Student Login Attempt ===");
     
-    if (!emailInput || !passwordInput) {
+    const loginType = document.getElementById('studentLoginType');
+    const password = document.getElementById('studentLoginPassword');
+    
+    if (!loginType || !password) {
         console.error('Login form elements not found');
+        showToast("Login form error", "error");
         return;
     }
     
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
+    let identifier;
+    switch(loginType.value) {
+        case 'regNumber':
+            const regNumber = document.getElementById('studentLoginRegNumber');
+            if (!regNumber || !regNumber.value.trim()) {
+                showToast("Please enter your registration number", "error");
+                if (regNumber) regNumber.focus();
+                return;
+            }
+            identifier = regNumber.value.trim();
+            console.log("Login with registration number:", identifier);
+            break;
+        case 'phone':
+            const phone = document.getElementById('studentLoginPhone');
+            if (!phone || !phone.value.trim()) {
+                showToast("Please enter your phone number", "error");
+                if (phone) phone.focus();
+                return;
+            }
+            identifier = phone.value.trim().replace(/\s/g, '').replace(/^\+/, '');
+            console.log("Login with phone:", identifier);
+            break;
+        case 'email':
+            const email = document.getElementById('studentLoginEmail');
+            if (!email || !email.value.trim()) {
+                showToast("Please enter your email", "error");
+                if (email) email.focus();
+                return;
+            }
+            identifier = email.value.trim();
+            console.log("Login with email:", identifier);
+            break;
+        default:
+            showToast("Invalid login type", "error");
+            return;
+    }
     
-    if (!email) {
-        showToast("Please enter your email address");
-        emailInput.focus();
+    if (!password.value) {
+        showToast("Please enter your password", "error");
+        password.focus();
         return;
     }
     
-    if (!password) {
-        showToast("Please enter your password");
-        passwordInput.focus();
+    // Find student
+    const students = JSON.parse(localStorage.getItem('oc_students')) || [];
+    console.log("Total students in system:", students.length);
+    let student;
+    
+    switch(loginType.value) {
+        case 'regNumber':
+            student = students.find(s => s.regNumber === identifier && atob(s.password) === password.value);
+            break;
+        case 'phone':
+            // Normalize phone for comparison
+            const normalizedPhone = identifier.startsWith('255') ? identifier : 
+                                   identifier.startsWith('07') ? '255' + identifier.substring(1) : 
+                                   identifier.startsWith('7') ? '255' + identifier : identifier;
+            student = students.find(s => s.phone === normalizedPhone && atob(s.password) === password.value);
+            break;
+        case 'email':
+            student = students.find(s => s.email === identifier && atob(s.password) === password.value);
+            break;
+    }
+    
+    if (!student) {
+        console.log("Login failed - no matching student found");
+        showToast("Invalid login credentials", "error");
         return;
     }
     
-    if (!validateEmail(email)) {
-        showToast("Please enter a valid email address");
-        emailInput.focus();
-        return;
-    }
-    
-    // Check credentials
-    const users = JSON.parse(localStorage.getItem('oc_app_users')) || [];
-    const user = users.find(u => u.email === email && atob(u.password) === password);
-    
-    if (!user) {
-        showToast("Invalid email or password");
-        return;
-    }
+    console.log("Student found:", student.name);
     
     // Update last login
-    user.lastLogin = new Date().toISOString();
-    localStorage.setItem('oc_app_users', JSON.stringify(users));
-    
-    // Find user's group
-    const groups = JSON.parse(localStorage.getItem('oc_app_groups')) || [];
-    const userGroup = groups.find(g => g.members.includes(user.id));
-    
-    console.log('Login successful:', { 
-        name: user.name,
-        email: email.substring(0, 3) + '...',
-        role: user.role
-    });
-    
-    showToast(`Welcome back, ${user.name}!`);
-    closeExistingUserModal();
-    
-    // Save remember me setting
-    const rememberMe = document.getElementById('rememberMe');
-    if (rememberMe && rememberMe.checked) {
-        localStorage.setItem('current_user', JSON.stringify(user));
+    student.lastLogin = new Date().toISOString();
+    const studentIndex = students.findIndex(s => s.id === student.id);
+    if (studentIndex !== -1) {
+        students[studentIndex] = student;
+        localStorage.setItem('oc_students', JSON.stringify(students));
     }
     
-    // Set as current user
-    window.currentUser = user;
+    // Find student's group
+    const groups = JSON.parse(localStorage.getItem('oc_student_groups')) || [];
+    const studentGroup = groups.find(g => g.members.includes(student.id));
     
-    // Navigate to group chat
+    console.log('Student login successful:', { 
+        name: student.name,
+        institution: student.institution,
+        hasGroup: !!studentGroup
+    });
+    
+    // Save remember me setting
+    const rememberMe = document.getElementById('studentRememberMe');
+    if (rememberMe && rememberMe.checked) {
+        localStorage.setItem('current_student', JSON.stringify(student));
+    }
+    
+    // Set as current student
+    window.currentStudent = student;
+    
+    showToast(`Welcome back, ${student.name}!`, "success");
+    closeStudentModal();
+    
+    // Navigate to student group chat
     setTimeout(() => {
-        if (userGroup) {
-            navigateToGroupChat(user, userGroup);
+        if (studentGroup) {
+            console.log("Navigating to existing group:", studentGroup.name);
+            navigateToStudentGroup(student, studentGroup);
         } else {
-            navigateToHomePage();
+            console.log("Creating temporary group for student");
+            // Create temporary group if none exists
+            const tempGroup = {
+                id: 'temp_group_' + student.id,
+                name: student.institution + " Study Group",
+                institution: student.institution,
+                admin: student.id,
+                members: [student.id],
+                type: 'student',
+                createdAt: new Date().toISOString()
+            };
+            navigateToStudentGroup(student, tempGroup);
         }
     }, 1000);
 }
 
-// Group Chat Functions
-function loadGroupMessages(groupId) {
-    const chatArea = document.getElementById('chatArea');
-    if (!chatArea) return;
+// Navigate to Student Group
+function navigateToStudentGroup(student, group) {
+    console.log("=== Navigating to Student Group ===");
+    console.log("Student:", student.name);
+    console.log("Group:", group.name);
     
-    const messages = JSON.parse(localStorage.getItem(`messages_${groupId}`)) || [];
+    // Hide other pages
+    const loginPage = document.getElementById('loginPage');
+    const groupPage = document.getElementById('groupPage');
+    
+    if (loginPage) loginPage.style.display = 'none';
+    if (groupPage) groupPage.style.display = 'none';
+    
+    // Show student-specific group page
+    let studentGroupPage = document.getElementById('studentGroupPage');
+    
+    if (!studentGroupPage) {
+        console.log("Creating student group page");
+        // Create student group page if it doesn't exist
+        const pageContent = `
+            <div id="studentGroupPage" style="display: flex; flex-direction: column; height: 100vh; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: white; z-index: 1000;">
+                <div class="group-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; display: flex; align-items: center; gap: 15px;">
+                    <img src="${student.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(student.name) + '&background=667eea&color=fff'}" alt="Profile" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0; font-size: 16px;">${group.name}</h4>
+                        <small style="opacity: 0.9;">${student.name} • ${student.academicYear.toUpperCase()}</small>
+                    </div>
+                    <div>
+                        <button onclick="logoutStudent()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="studentChatArea" style="flex: 1; padding: 15px; overflow-y: auto; background: #f8f9fa;"></div>
+                
+                <div style="padding: 15px; background: white; border-top: 1px solid #eee;">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="studentMsg" placeholder="Type your message..." style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; font-size: 14px;">
+                        <button onclick="sendStudentMsg()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer;">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div style="text-align: center; margin-top: 10px;">
+                        <small style="color: #999; font-size: 12px;">This group is for ${student.institution} students only</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        const pageDiv = document.createElement('div');
+        pageDiv.innerHTML = pageContent;
+        document.body.appendChild(pageDiv.firstElementChild);
+        studentGroupPage = document.getElementById('studentGroupPage');
+    }
+    
+    if (studentGroupPage) {
+        console.log("Student group page found/created, updating...");
+        // Update page with current student info
+        const headerImg = studentGroupPage.querySelector('.group-header img');
+        const headerTitle = studentGroupPage.querySelector('.group-header h4');
+        const headerSubtitle = studentGroupPage.querySelector('.group-header small');
+        
+        if (headerImg && student.photo) {
+            headerImg.src = student.photo;
+        } else if (headerImg) {
+            headerImg.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(student.name) + '&background=667eea&color=fff';
+        }
+        
+        if (headerTitle) headerTitle.textContent = group.name;
+        if (headerSubtitle) headerSubtitle.textContent = `${student.name} • ${student.academicYear.toUpperCase()}`;
+        
+        // Show student group page
+        studentGroupPage.style.display = 'flex';
+        
+        // Load student messages
+        loadStudentMessages(group.id);
+        
+        // Focus on message input
+        setTimeout(() => {
+            const msgInput = document.getElementById('studentMsg');
+            if (msgInput) {
+                msgInput.focus();
+                console.log("Message input focused");
+            }
+        }, 100);
+    }
+    
+    console.log("Student group navigation complete");
+}
+
+// Load Student Messages
+function loadStudentMessages(groupId) {
+    console.log("Loading messages for group:", groupId);
+    const chatArea = document.getElementById('studentChatArea');
+    if (!chatArea) {
+        console.error("Chat area not found");
+        return;
+    }
+    
+    const messages = JSON.parse(localStorage.getItem(`student_messages_${groupId}`)) || [];
+    console.log("Found messages:", messages.length);
+    
     chatArea.innerHTML = '';
     
     if (messages.length === 0) {
         chatArea.innerHTML = `
-            <div class="no-messages" style="text-align: center; padding: 40px 20px; color: #999;">
+            <div style="text-align: center; padding: 40px 20px; color: #999;">
                 <i class="fas fa-comments" style="font-size: 48px; margin-bottom: 15px;"></i>
-                <p>No messages yet. Be the first to say hello!</p>
+                <p>Welcome to your study group! Start the conversation.</p>
+                <small style="display: block; margin-top: 10px;">Share notes, ask questions, and collaborate with classmates</small>
             </div>
         `;
         return;
@@ -12971,552 +13213,487 @@ function loadGroupMessages(groupId) {
     
     messages.forEach(msg => {
         const div = document.createElement('div');
-        div.className = `message ${msg.email === window.currentUser?.email ? 'me' : 'other'}`;
+        div.className = `message ${msg.studentId === window.currentStudent?.id ? 'me' : 'other'}`;
+        div.style.cssText = `
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 70%;
+            position: relative;
+            ${msg.studentId === window.currentStudent?.id ? 
+                'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-left: auto;' : 
+                'background: white; color: #333; margin-right: auto; border: 1px solid #ddd;'}
+        `;
         
-        // Find sender name
-        const users = JSON.parse(localStorage.getItem('oc_app_users')) || [];
-        const sender = users.find(u => u.email === msg.email);
-        const senderName = sender ? sender.name : msg.name;
+        // Find sender info
+        const students = JSON.parse(localStorage.getItem('oc_students')) || [];
+        const sender = students.find(s => s.id === msg.studentId);
+        const senderName = sender ? sender.name : 'Unknown Student';
         
         const time = new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         div.innerHTML = `
-            <div class="message-header">
-                <strong>${senderName}${sender && sender.role === 'admin' ? ' 👑' : ''}</strong>
-                <span class="message-time">${time}</span>
+            <div class="message-header" style="font-size: 12px; margin-bottom: 5px; opacity: 0.8;">
+                <strong>${senderName}${sender && sender.id === window.currentStudent?.id ? ' (You)' : ''}</strong>
+                <span class="message-time" style="margin-left: 10px;">${time}</span>
             </div>
-            <div class="message-text">${msg.text}</div>
+            <div class="message-text" style="font-size: 14px;">${msg.text}</div>
+            ${msg.studentId === window.currentStudent?.id ? '<div style="font-size: 11px; opacity: 0.7; text-align: right; margin-top: 5px;">✓ Delivered</div>' : ''}
         `;
         chatArea.appendChild(div);
     });
     
     chatArea.scrollTop = chatArea.scrollHeight;
+    console.log("Messages loaded and displayed");
 }
 
-function sendMsg() {
-    if (!window.currentUser) {
-        showToast("Please login first");
+// Send Student Message
+function sendStudentMsg() {
+    console.log("Sending student message");
+    
+    if (!window.currentStudent) {
+        showToast("Please login as student first", "error");
         return;
     }
     
-    const input = document.getElementById('msg');
-    if (!input || !input.value.trim()) return;
-    
-    // Find user's group
-    const groups = JSON.parse(localStorage.getItem('oc_app_groups')) || [];
-    const userGroup = groups.find(g => g.members.includes(currentUser.id));
-    
-    if (!userGroup) {
-        showToast("You are not in any group");
+    const input = document.getElementById('studentMsg');
+    if (!input || !input.value.trim()) {
+        console.log("No message to send");
         return;
     }
     
-    const messages = JSON.parse(localStorage.getItem(`messages_${userGroup.id}`)) || [];
-    messages.push({
-        name: currentUser.name,
-        email: currentUser.email,
+    // Find student's group
+    const groups = JSON.parse(localStorage.getItem('oc_student_groups')) || [];
+    const studentGroup = groups.find(g => g.members.includes(currentStudent.id));
+    
+    if (!studentGroup) {
+        showToast("You are not in any study group", "error");
+        return;
+    }
+    
+    console.log("Sending message to group:", studentGroup.name);
+    
+    const messages = JSON.parse(localStorage.getItem(`student_messages_${studentGroup.id}`)) || [];
+    const newMessage = {
+        studentId: currentStudent.id,
         text: input.value.trim(),
         time: Date.now()
+    };
+    
+    messages.push(newMessage);
+    localStorage.setItem(`student_messages_${studentGroup.id}`, JSON.stringify(messages));
+    
+    console.log("Message sent:", {
+        student: currentStudent.name,
+        text: input.value.trim().substring(0, 50) + '...',
+        group: studentGroup.name
     });
     
-    localStorage.setItem(`messages_${userGroup.id}`, JSON.stringify(messages));
     input.value = '';
-    loadGroupMessages(userGroup.id);
+    loadStudentMessages(studentGroup.id);
 }
 
-// Helper Functions
-function showToast(message) {
-    // Remove existing toast
-    const existingToast = document.querySelector('.custom-toast');
-    if (existingToast) {
-        existingToast.remove();
-    }
-    
-    const toast = document.createElement('div');
-    toast.className = 'custom-toast';
-    toast.textContent = message;
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #42B983;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 4px;
-        z-index: 10000;
-        animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-size: 14px;
-        min-width: 200px;
-        max-width: 400px;
-        word-break: break-word;
-    `;
-    
-    document.body.appendChild(toast);
-    
-    // Add animation styles if not present
-    if (!document.querySelector('#toast-animations')) {
-        const style = document.createElement('style');
-        style.id = 'toast-animations';
-        style.textContent = `
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(-10px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.remove();
-        }
-    }, 3000);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Placeholder functions
-function showTerms() {
-    alert("Terms of Service:\n\n1. Be respectful to other members\n2. No spam or inappropriate content\n3. Keep discussions educational\n4. Respect privacy of others\n5. Follow school/college guidelines");
-}
-
-function showPrivacyPolicy() {
-    alert("Privacy Policy:\n\nWe value your privacy:\n1. Your data is stored locally on your device\n2. We don't share your information with third parties\n3. You can delete your account anytime\n4. Your messages are only visible to your school group");
-}
-
-function showPasswordRecovery() {
-    const modal = document.getElementById('existingUserModal');
+// Student Password Recovery
+function showStudentPasswordRecovery() {
+    console.log("Showing password recovery");
+    const modal = document.getElementById('studentLoginModal');
     if (modal) {
         const modalBody = modal.querySelector('.modal-body');
         modalBody.innerHTML = `
             <div style="text-align: center; margin-bottom: 20px;">
                 <i class="fas fa-key" style="font-size: 48px; color: #f39c12; margin-bottom: 15px;"></i>
-                <h3>Password Recovery</h3>
-                <p style="color: #65676B;">Enter your email to reset password</p>
+                <h3>Student Password Recovery</h3>
+                <p style="color: #65676B;">Enter your registration number to reset password</p>
             </div>
             
-            <form id="recoveryForm">
+            <form id="studentRecoveryForm">
                 <div class="form-group">
-                    <label for="recoveryEmail">Email Address</label>
-                    <input type="email" id="recoveryEmail" placeholder="Enter your registered email" required>
+                    <label for="studentRecoveryRegNumber">Registration Number *</label>
+                    <input type="text" id="studentRecoveryRegNumber" placeholder="Enter your registration number" required>
                 </div>
                 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
-                    <i class="fas fa-paper-plane"></i> Send Reset Link
+                <div class="form-group">
+                    <label for="studentRecoveryPhone">Phone Number *</label>
+                    <input type="tel" id="studentRecoveryPhone" placeholder="07XXXXXXXX" required>
+                    <small style="color: #65676B; font-size: 12px;">Must match the number in your registration</small>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-paper-plane"></i> Reset Password
                 </button>
             </form>
             
             <div style="text-align: center; margin-top: 20px;">
-                <button type="button" class="btn btn-secondary" onclick="showExistingUserOptions()">
+                <button type="button" class="btn btn-secondary" onclick="showStudentLogin()">
                     <i class="fas fa-arrow-left"></i> Back to Login
                 </button>
             </div>
         `;
         
         // Add form handler
-        const form = document.getElementById('recoveryForm');
+        const form = document.getElementById('studentRecoveryForm');
         if (form) {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const email = document.getElementById('recoveryEmail').value.trim();
-                if (email && validateEmail(email)) {
-                    showToast("Reset link sent to " + email);
-                    showExistingUserOptions();
+                console.log("Password recovery form submitted");
+                const regNumber = document.getElementById('studentRecoveryRegNumber').value.trim();
+                const phone = document.getElementById('studentRecoveryPhone').value.trim().replace(/\s/g, '').replace(/^\+/, '');
+                
+                const students = JSON.parse(localStorage.getItem('oc_students')) || [];
+                const student = students.find(s => s.regNumber === regNumber);
+                
+                if (student) {
+                    // Normalize phone for comparison
+                    const normalizedPhone = phone.startsWith('255') ? phone : 
+                                          phone.startsWith('07') ? '255' + phone.substring(1) : 
+                                          phone.startsWith('7') ? '255' + phone : phone;
+                    
+                    if (student.phone === normalizedPhone) {
+                        console.log("Student verified for password reset:", student.name);
+                        // Generate temporary password
+                        const tempPassword = Math.random().toString(36).slice(-8);
+                        student.password = btoa(tempPassword);
+                        
+                        // Update student
+                        const studentIndex = students.findIndex(s => s.id === student.id);
+                        if (studentIndex !== -1) {
+                            students[studentIndex] = student;
+                            localStorage.setItem('oc_students', JSON.stringify(students));
+                            
+                            showToast(`Password reset! Your temporary password: ${tempPassword}`, "success");
+                            showStudentLogin();
+                        }
+                    } else {
+                        showToast("Phone number doesn't match registration", "error");
+                    }
+                } else {
+                    showToast("Registration number not found", "error");
                 }
             });
         }
     }
 }
 
-function switchToNewUser() {
-    closeExistingUserModal();
-    setTimeout(() => {
-        showNewUserWelcome();
-    }, 300);
+// Student Logout
+function logoutStudent() {
+    console.log("Logging out student");
+    if (window.currentStudent) {
+        showToast("Logged out successfully", "success");
+        console.log("Student logged out:", window.currentStudent.name);
+        window.currentStudent = null;
+        localStorage.removeItem('current_student');
+        
+        // Hide student group page
+        const studentGroupPage = document.getElementById('studentGroupPage');
+        if (studentGroupPage) {
+            studentGroupPage.style.display = 'none';
+            console.log("Student group page hidden");
+        }
+        
+        // Show login page if it exists
+        const loginPage = document.getElementById('loginPage');
+        if (loginPage) {
+            loginPage.style.display = 'flex';
+            console.log("Login page shown");
+        }
+    }
 }
 
-function switchToExistingUser() {
-    closeNewUserModal();
-    setTimeout(() => {
-        showExistingUserOptions();
-    }, 300);
-}
-
-function closeNewUserModal() {
-    const modal = document.getElementById('newUserModal');
-    if (modal) {
-        modal.style.display = 'none';
+// Close Student Modal
+function closeStudentModal() {
+    console.log("Closing student modal");
+    const regModal = document.getElementById('studentRegistrationModal');
+    const loginModal = document.getElementById('studentLoginModal');
+    
+    if (regModal) {
+        regModal.style.display = 'none';
         setTimeout(() => {
-            if (modal.parentNode) {
-                modal.remove();
+            if (regModal.parentNode) {
+                regModal.remove();
+                console.log("Registration modal removed");
+            }
+        }, 300);
+    }
+    
+    if (loginModal) {
+        loginModal.style.display = 'none';
+        setTimeout(() => {
+            if (loginModal.parentNode) {
+                loginModal.remove();
+                console.log("Login modal removed");
             }
         }, 300);
     }
 }
 
-function navigateToGroupChat(user, group) {
-    console.log("Navigating to group chat:", { userName: user.name, groupName: group.name });
-    
-    // Hide login page
-    const loginPage = document.getElementById('loginPage');
-    if (loginPage) {
-        loginPage.style.display = 'none';
-    }
-    
-    // Show group page
-    const groupPage = document.getElementById('groupPage');
-    if (groupPage) {
-        groupPage.style.display = 'flex';
-        
-        // Update group header
-        const headerImg = groupPage.querySelector('.group-header img');
-        const headerTitle = groupPage.querySelector('.group-header h4');
-        const headerSubtitle = groupPage.querySelector('.group-header small');
-        
-        if (headerTitle) headerTitle.textContent = group.name;
-        if (headerSubtitle) headerSubtitle.textContent = `${group.school} • ${user.role === 'admin' ? 'Admin' : 'Member'}`;
-        
-        // Set profile picture if available
-        if (user.profilePicture && headerImg) {
-            headerImg.src = user.profilePicture;
-            headerImg.style.borderRadius = '50%';
-            headerImg.style.objectFit = 'cover';
+// Switch to Regular Account
+function switchToRegularAccount() {
+    console.log("Switching to regular account");
+    closeStudentModal();
+    setTimeout(() => {
+        // Check if regular account functions exist
+        if (typeof showAccountPopup === 'function') {
+            showAccountPopup();
+        } else if (typeof selectUserType === 'function') {
+            // This might be the regular account version
+            selectUserType('new');
+        } else {
+            console.error("Regular account functions not found");
+            showToast("Regular account system not available", "error");
         }
-        
-        // Load messages
-        loadGroupMessages(group.id);
-        
-        // Update user info in the UI if elements exist
-        const userNameSpan = document.getElementById('userName');
-        if (userNameSpan) {
-            userNameSpan.textContent = user.name;
-        }
-        
-        const userRoleSpan = document.getElementById('userRole');
-        if (userRoleSpan) {
-            userRoleSpan.textContent = user.role === 'admin' ? 'Admin' : 'Member';
-        }
-    }
-    
-    // Update current user globally
-    window.currentUser = user;
-    console.log("Current user set:", user.name);
+    }, 300);
 }
 
-function navigateToHomePage() {
-    showToast("Welcome to O.C App! Loading dashboard...");
+// Initialize Student Account System
+function initStudentAccountSystem() {
+    console.log("=== Initializing Student Account System ===");
     
-    // Show login page if it exists
-    const loginPage = document.getElementById('loginPage');
-    if (loginPage) {
-        loginPage.style.display = 'flex';
-    }
-    
-    // Hide group page if it exists
-    const groupPage = document.getElementById('groupPage');
-    if (groupPage) {
-        groupPage.style.display = 'none';
-    }
-}
-
-// Initialize the app
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("O.C App Initializing...");
-    
-    // Check if user is already logged in
-    const savedUser = localStorage.getItem('current_user');
-    if (savedUser) {
+    // Check if student is already logged in
+    const savedStudent = localStorage.getItem('current_student');
+    if (savedStudent) {
         try {
-            const userData = JSON.parse(savedUser);
-            const users = JSON.parse(localStorage.getItem('oc_app_users')) || [];
-            const user = users.find(u => u.id === userData.id);
+            const studentData = JSON.parse(savedStudent);
+            const students = JSON.parse(localStorage.getItem('oc_students')) || [];
+            const student = students.find(s => s.id === studentData.id);
             
-            if (user) {
-                window.currentUser = user;
-                const groups = JSON.parse(localStorage.getItem('oc_app_groups')) || [];
-                const userGroup = groups.find(g => g.members.includes(user.id));
+            if (student) {
+                window.currentStudent = student;
+                const groups = JSON.parse(localStorage.getItem('oc_student_groups')) || [];
+                const studentGroup = groups.find(g => g.members.includes(student.id));
                 
-                if (userGroup) {
-                    console.log("Auto-login detected, navigating to group chat");
-                    navigateToGroupChat(user, userGroup);
+                if (studentGroup) {
+                    console.log("Auto-login detected for student:", student.name);
+                    navigateToStudentGroup(student, studentGroup);
                 } else {
-                    console.log("User has no group, showing homepage");
-                    navigateToHomePage();
+                    console.log("Student has no group, creating temporary");
+                    const tempGroup = {
+                        id: 'temp_group_' + student.id,
+                        name: student.institution + " Study Group",
+                        institution: student.institution,
+                        admin: student.id,
+                        members: [student.id],
+                        type: 'student',
+                        createdAt: new Date().toISOString()
+                    };
+                    navigateToStudentGroup(student, tempGroup);
                 }
             } else {
-                console.log("Saved user not found in users list");
-                localStorage.removeItem('current_user');
+                console.log("Saved student not found in database");
+                localStorage.removeItem('current_student');
             }
         } catch (e) {
-            console.error('Error loading saved user:', e);
-            localStorage.removeItem('current_user');
-        }
-    }
-    
-    // Add form styles
-    if (!document.querySelector('#form-styles')) {
-        const style = document.createElement('style');
-        style.id = 'form-styles';
-        style.textContent = `
-            .form-group {
-                margin-bottom: 15px;
-            }
-            .form-group label {
-                display: block;
-                margin-bottom: 5px;
-                font-weight: 500;
-                color: #333;
-            }
-            .form-group input,
-            .form-group textarea,
-            .form-group select {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                font-size: 14px;
-                box-sizing: border-box;
-                font-family: inherit;
-            }
-            .form-group input:focus,
-            .form-group textarea:focus,
-            .form-group select:focus {
-                outline: none;
-                border-color: #4267B2;
-                box-shadow: 0 0 0 2px rgba(66, 103, 178, 0.1);
-            }
-            .btn {
-                padding: 10px 20px;
-                border: none;
-                border-radius: 4px;
-                font-size: 14px;
-                cursor: pointer;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                transition: all 0.2s;
-                font-family: inherit;
-            }
-            .btn-primary {
-                background: #4267B2;
-                color: white;
-            }
-            .btn-primary:hover {
-                background: #365899;
-            }
-            .btn-secondary {
-                background: #f0f2f5;
-                color: #333;
-            }
-            .btn-secondary:hover {
-                background: #e4e6eb;
-            }
-            .modal {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.5);
-                z-index: 1000;
-                align-items: center;
-                justify-content: center;
-            }
-            .modal-content {
-                background: white;
-                border-radius: 8px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                animation: modalFadeIn 0.3s;
-                max-height: 90vh;
-                overflow: hidden;
-            }
-            @keyframes modalFadeIn {
-                from { opacity: 0; transform: translateY(-20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            .modal-header {
-                padding: 20px;
-                border-bottom: 1px solid #eee;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .modal-header h3 {
-                margin: 0;
-                font-size: 18px;
-            }
-            .modal-close {
-                cursor: pointer;
-                font-size: 28px;
-                color: #999;
-                line-height: 1;
-            }
-            .modal-close:hover {
-                color: #333;
-            }
-            .modal-body {
-                padding: 20px;
-                max-height: calc(90vh - 140px);
-                overflow-y: auto;
-            }
-            .modal-footer {
-                padding: 15px 20px;
-                border-top: 1px solid #eee;
-                text-align: right;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    // Add message styles if not present
-    if (!document.querySelector('#message-styles')) {
-        const style = document.createElement('style');
-        style.id = 'message-styles';
-        style.textContent = `
-            .message {
-                margin-bottom: 15px;
-                padding: 10px 15px;
-                border-radius: 18px;
-                max-width: 70%;
-                position: relative;
-            }
-            .message.me {
-                background: #4267B2;
-                color: white;
-                margin-left: auto;
-                border-bottom-right-radius: 4px;
-            }
-            .message.other {
-                background: #f0f2f5;
-                color: #333;
-                margin-right: auto;
-                border-bottom-left-radius: 4px;
-            }
-            .message-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 5px;
-                font-size: 12px;
-            }
-            .message-time {
-                opacity: 0.7;
-                font-size: 11px;
-            }
-            .message.me .message-time {
-                color: rgba(255,255,255,0.8);
-            }
-            .message.other .message-time {
-                color: rgba(0,0,0,0.6);
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    // Prevent default on links that have href="#"
-    document.addEventListener('click', function(e) {
-        if (e.target.tagName === 'A' && e.target.getAttribute('href') === '#') {
-            e.preventDefault();
-        }
-    });
-    
-    // Add message input event listener for Enter key
-    const msgInput = document.getElementById('msg');
-    if (msgInput) {
-        msgInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMsg();
-            }
-        });
-    }
-    
-    console.log("O.C App Initialized");
-});
-
-// Global login function for the existing HTML
-function login() {
-    const nameInput = document.getElementById('name');
-    const emailInput = document.getElementById('email');
-    
-    if (!nameInput || !emailInput) {
-        // If the simple login form doesn't exist, use our modal system
-        selectUserType('existing');
-        return;
-    }
-    
-    const name = nameInput.value.trim();
-    const email = emailInput.value.trim();
-    
-    if (!name || !email) {
-        showToast("Please fill in all fields");
-        return;
-    }
-    
-    // Check if user exists in our system
-    const users = JSON.parse(localStorage.getItem('oc_app_users')) || [];
-    const user = users.find(u => u.email === email);
-    
-    if (user) {
-        // User exists, go to group chat
-        const groups = JSON.parse(localStorage.getItem('oc_app_groups')) || [];
-        const userGroup = groups.find(g => g.members.includes(user.id));
-        
-        if (userGroup) {
-            navigateToGroupChat(user, userGroup);
-        } else {
-            navigateToHomePage();
+            console.error('Error loading saved student:', e);
+            localStorage.removeItem('current_student');
         }
     } else {
-        // New user, show registration
-        showToast("Please register as a new user");
-        selectUserType('new');
+        console.log("No saved student found");
     }
 }
 
-// Logout function
-function logout() {
-    if (window.currentUser) {
-        showToast("Logged out successfully");
-        window.currentUser = null;
-        localStorage.removeItem('current_user');
-        navigateToHomePage();
-    }
+// Add student-specific styles
+if (!document.querySelector('#student-styles')) {
+    console.log("Adding student styles");
+    const style = document.createElement('style');
+    style.id = 'student-styles';
+    style.textContent = `
+        /* Student-specific styles */
+        .student-message {
+            border-left: 3px solid #667eea;
+        }
+        
+        .student-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #ddd;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline:hover {
+            background: #f8f9fa;
+            border-color: #ccc;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #f0f2f5;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-secondary:hover {
+            background: #e4e6eb;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* Message styling */
+        .message.me {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: auto;
+        }
+        
+        .message.other {
+            background: white;
+            color: #333;
+            margin-right: auto;
+            border: 1px solid #ddd;
+        }
+        
+        /* Student group header */
+        .student-group-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    `;
+    document.head.appendChild(style);
+    console.log("Student styles added");
 }
+
+// Call initialization when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM loaded, initializing student system...");
+    initStudentAccountSystem();
+});
+
+// Also initialize if DOM is already loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initStudentAccountSystem);
+} else {
+    initStudentAccountSystem();
+}
+
+// Make functions globally available
+window.toggleBookMenu = toggleBookMenu;
+window.selectUserType = selectUserType;
+window.showStudentRegistration = showStudentRegistration;
+window.showStudentLogin = showStudentLogin;
+window.toggleStudentLoginFields = toggleStudentLoginFields;
+window.checkStudentPasswordStrength = checkStudentPasswordStrength;
+window.checkStudentPasswordMatch = checkStudentPasswordMatch;
+window.previewStudentPhoto = previewStudentPhoto;
+window.registerStudent = registerStudent;
+window.loginStudent = loginStudent;
+window.navigateToStudentGroup = navigateToStudentGroup;
+window.loadStudentMessages = loadStudentMessages;
+window.sendStudentMsg = sendStudentMsg;
+window.showStudentPasswordRecovery = showStudentPasswordRecovery;
+window.logoutStudent = logoutStudent;
+window.closeStudentModal = closeStudentModal;
+window.switchToRegularAccount = switchToRegularAccount;
+window.initStudentAccountSystem = initStudentAccountSystem;
+
+console.log("Student account system loaded and ready");
+
+
+
+
+
+
+
 
 
 // Initialize the app when the page loads
